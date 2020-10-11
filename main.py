@@ -48,6 +48,6 @@ def download_content(episode_list):
 
         f.close()
 
+
 url = 'https://giantgnome.com/our-shows/audio-drama/star-trek-outpost/#STOepisodes'
-
-
+download_content(get_contents_links(url))
