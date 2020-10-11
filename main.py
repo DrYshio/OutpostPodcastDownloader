@@ -1,26 +1,25 @@
 import urllib.request
+from bs4 import BeautifulSoup
 
 
-url = "https://hwcdn.libsyn.com/p/2/9/3/293daf4be9059198/Star_Trek_Outpost-Episode_1-What_Could_Be_So_Bad.mp3?c_id=4712145&cs_id=4712145&expiration=1602201478&hwt=ebb4668b71c4ed5598531ea63937aa66"
+def get_contents_links(url):
+    episode_list = {}
+    req = urllib.request.Request(
+        url,
+        headers={'User-Agent': 'Mozilla/5.0'})
+    webpage = urllib.request.urlopen(req).read()
+    soup = BeautifulSoup(webpage, 'html.parser')
+    content = soup.find_all("ul", class_="episodeList")[0]
+    for episode in content('a'):
+        try:
+            episode_name = episode['title'][19:]
+        except KeyError:
+            episode_name = episode.contents[0]
+        episode_list[episode_name] = episode['href']
+    return episode_list
 
-file_name = 'content.mp3'
-u = urllib.request.urlopen(url)
-f = open(file_name, 'wb')
-meta = u.info()
-file_size = int(meta.get("Content-Length")[0])
-print("Downloading: %s Bytes: %s" % (file_name, file_size))
 
-file_size_dl = 0
-block_sz = 8192
-while True:
-    buffer = u.read(block_sz)
-    if not buffer:
-        break
 
-    file_size_dl += len(buffer)
-    f.write(buffer)
-    status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-    status = status + chr(8)*(len(status)+1)
-    print(status)
+url = 'https://giantgnome.com/our-shows/audio-drama/star-trek-outpost/#STOepisodes'
 
-f.close()
+
