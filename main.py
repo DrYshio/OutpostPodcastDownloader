@@ -1,4 +1,5 @@
 import urllib.request
+import os
 from bs4 import BeautifulSoup
 
 
@@ -19,6 +20,33 @@ def get_contents_links(url):
     return episode_list
 
 
+def download_content(episode_list):
+
+    for episode_name in episode_list.keys():
+        url = urllib.request.urlopen(episode_list[episode_name])
+        try:
+            os.mkdir(os.path.join(os.getcwd(), "content"))
+        except FileExistsError:
+            pass
+        f = open(os.path.join(os.getcwd(), "content", episode_name), 'wb')
+        meta = url.info()
+        file_size = int(meta['Content-Length'])
+        print(f"Downloading: {episode_name} Bytes: {file_size}")
+
+        file_size_dl = 0
+        block_sz = 8192
+        while True:
+            buffer = url.read(block_sz)
+            if not buffer:
+                break
+
+            file_size_dl += len(buffer)
+            f.write(buffer)
+            status = f"{file_size_dl} bytes - {' ' * (10-len(str(file_size_dl)))}{round(file_size_dl * 100. / file_size, 1)}%"
+            status = status + chr(8) * (len(status) + 1)
+            print(status)
+
+        f.close()
 
 url = 'https://giantgnome.com/our-shows/audio-drama/star-trek-outpost/#STOepisodes'
 
