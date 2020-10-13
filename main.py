@@ -16,6 +16,7 @@ def get_contents_links(url):
             episode_name = episode['title'][19:]
         except KeyError:
             episode_name = episode.contents[0]
+        episode_name = episode_name.replace('?', '¿')  # for windows users
         episode_list[episode_name] = episode['href']
     return episode_list
 
@@ -28,7 +29,7 @@ def download_content(episode_list):
             os.mkdir(os.path.join(os.getcwd(), "content"))
         except FileExistsError:
             pass
-        f = open(os.path.join(os.getcwd(), "content", episode_name), 'wb')
+        f = open(os.path.join(os.getcwd(), "content", episode_name) + '.mp3', 'wb')
         meta = url.info()
         file_size = int(meta['Content-Length'])
         print(f"Downloading: {episode_name} Bytes: {file_size}")
